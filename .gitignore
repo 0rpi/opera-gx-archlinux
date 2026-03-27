@@ -1,0 +1,10 @@
+# Build artifacts
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.deb
+src/
+pkg/
+repo/
+
+# makepkg logs
+*.log

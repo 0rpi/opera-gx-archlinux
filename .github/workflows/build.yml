@@ -1,0 +1,39 @@
+name: Update PKGBUILD
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for new Opera GX version
+        id: check
+        run: bash scripts/update-version.sh
+
+      - name: Commit version bump
+        if: steps.check.outputs.new_version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD
+          git commit -m "Update opera-gx-stable to ${{ steps.check.outputs.new_version }}"
+          git push
+
+      - name: Send SMS notification
+        if: steps.check.outputs.new_version
+        env:
+          NEW_VER: ${{ steps.check.outputs.new_version }}
+          OLD_VER: ${{ steps.check.outputs.old_version }}
+          PKG_SIZE: ${{ steps.check.outputs.pkg_size }}
+        run: |
+          MSG="Opera GX $OLD_VER -> $NEW_VER ($PKG_SIZE). git pull && ./install.sh"
+          curl -s -o /dev/null -w "%{http_code}" \
+            "https://smsapi.free-mobile.fr/sendmsg?user=${{ secrets.FREE_USER }}&pass=${{ secrets.FREE_PASS }}&msg=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$MSG'))")"
