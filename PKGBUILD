@@ -2,7 +2,7 @@
 # Auto-updated via GitHub Actions
 
 pkgname=opera-gx-stable
-pkgver=130.0.5847.108
+pkgver=131.0.5877.36
 pkgrel=1
 pkgdesc="Opera GX - A browser built for gamers"
 arch=('x86_64')
